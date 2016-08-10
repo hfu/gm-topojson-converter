@@ -1,0 +1,158 @@
+scene:
+  background:
+   color: '#222'
+#cameras:
+  #camera1:
+    #type: perspective
+sources:
+  a:
+    type: TopoJSON
+    url: //localhost:8000/convert/coastl_jpn.topojson
+  ort:
+    type: Raster
+    url: //cyberjapandata.gsi.go.jp/xyz/ort/{z}/{x}/{y}.jpg
+    max_zoom: 4
+  rdcl:
+    type: GeoJSON
+    url: //cyberjapandata.gsi.go.jp/xyz/experimental_rdcl/{z}/{x}/{y}.geojson
+    max_zoom: 16
+    min_zoom: 16
+  anno:
+    type: GeoJSON
+    url: //cyberjapandata.gsi.go.jp/xyz/experimental_anno/{z}/{x}/{y}.geojson
+    min_zoom: 15
+    max_zoom: 15
+  fgd:
+    type: GeoJSON
+    url: //cyberjapandata.gsi.go.jp/xyz/experimental_fgd/{z}/{x}/{y}.geojson
+    min_zoom: 18
+    max_zoom: 18
+layers:
+  gm:
+    data: {source: a}
+    draw:
+      lines:
+        order: 4
+        color: red
+        width: 2px
+  ort:
+    data: {source: ort}
+    draw:
+      raster:
+        color: [0.3, 0.3, 0.3]
+        order: 0
+  rdcl:
+    data: {source: rdcl}
+    draw:
+      lines:
+        order: 4
+        color: [[15, gray], [17, gray], [18, gray]]
+        width: [[15, 3px], [17, 3px], [18, 1px]]
+      #path:
+        #filter: {type: 庭園路}
+        #draw:
+          #lines:
+            #color: orange
+            #width: 1px
+  anno:
+    data: {source: anno}
+    draw:
+      text:
+        anchor: right
+        order: 10
+        text_source: function() {if(feature.arrng == 2) {var s = ""; for(var i = 0; i < feature.knj.length; i++) s = s + feature.knj.charAt(i) + "\n"; return s;} else {return feature.knj;}}
+        offset: [4, 0]
+        priority: 3
+        font:
+          family: ["Hiragino Mincho ProN", serif]
+          size: [[14, 12pt], [16, 12pt], [17, 40pt], [18, 32pt]]
+          weight: bolder
+          fill: white
+  fgd:
+    data: {source: fgd}
+    draw:
+      lines:
+        order: 5
+        color: orange # default color
+        width: 2px
+    railcl:
+      filter:
+        class: RailCL
+      draw:
+        lines:
+          order: 7
+          color: '#7f7'
+    bldl:
+      filter:
+        class: BldL
+      draw:
+        lines:
+          order: 7
+          color: '#f72'
+          cap: 'butt'
+          width: "function() {return feature.type == '堅ろう建物'? 1 : 0.2;}"
+          #extrude: 50
+        text:
+          interactive: true
+          text_source: "function() {var s = {'50373-13494-s-816': '麟閣', '50373-13494-s-1332': '天守閣'}[feature.fid]; return ($zoom < 20) ? '' : ((s ? s : '')  + ' ' + feature.fid);}"
+          order: 100
+          offset: [0, 16]
+          font:
+            family: monospace
+            size: 10pt
+            fill: '#f72'
+    rdedg:
+      filter:
+        class: RdEdg
+      draw:
+        lines:
+          order: 6
+          color: white
+          width: 1px
+    rdcompt:
+      filter:
+        class: RdCompt
+      draw:
+        lines:
+          order: 7
+          width: 1px
+          color: '#aaa'
+    wl:
+      filter:
+        class: WL
+      draw:
+        lines:
+          order: 6
+          width: 1px
+          color: '#00f'
+    cstline:
+      filter:
+        class: Cstline
+      draw:
+        lines:
+          order: 6
+          width: 2px
+          color: '#00f'
+    bdry:
+      filter:
+        class: [AdmBdry, CommBdry]
+      draw:
+        lines:
+          order: 6
+          width: 1px
+          color: '#f77'
+    cntr:
+      filter:
+        class: Cntr
+      draw:
+        lines:
+          order: 4
+          color: '#c8a03c'
+        text:
+          text_source: alti
+          order: 10
+          offset: [0, 5]
+          font:
+            family: monospace
+            size: 12pt
+            fill: '#c8a03c'
